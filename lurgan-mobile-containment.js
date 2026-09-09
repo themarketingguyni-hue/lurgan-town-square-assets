@@ -63,11 +63,13 @@
       .launch-stage>*, .launch-stage>*>* { min-width:0!important; max-width:100%!important; }
     }
   `;
+  var lastProtectedPage = null;
   function protect() {
     var frame = document.querySelector('iframe[title="Lurgan Town Square"]');
     var page;
     try { page = frame && frame.contentDocument; } catch (error) { return; }
-    if (!page || !page.head) return;
+    if (!page || !page.head || page === lastProtectedPage) return;
+    lastProtectedPage = page;
     var style = page.getElementById("ts-live-mobile-containment");
     if (!style) {
       style = page.createElement("style");
@@ -86,8 +88,7 @@
     protectedVideos.add(video);
     video.setAttribute("src", source);
     video.setAttribute("poster", poster);
-    video.setAttribute("preload", "metadata");
-    video.load();
+    video.setAttribute("preload", "none");
   }
   protect();
   setInterval(protect, 500);
