@@ -9,11 +9,15 @@
       .ts-why-white-section, #ts-tenner-pricing, #founding-access {
         width:100%!important; max-width:100%!important; min-width:0!important;
       }
-      main>section, #ts-hero-frame, .launch-stage, .ts-benefits-section,
-      .ts-why-white-section, #ts-tenner-pricing, #founding-access {
+      main>section, section[aria-labelledby="business-benefits-title"],
+      section[aria-labelledby="why-town-square-title"], #ts-hero-frame,
+      .launch-stage, .ts-benefits-section, .ts-why-white-section,
+      #ts-tenner-pricing, #founding-access {
         width:100vw!important; max-width:none!important;
         margin-left:calc(50% - 50vw)!important;
         margin-right:calc(50% - 50vw)!important;
+        border-left:0!important; border-right:0!important;
+        border-radius:0!important;
       }
       main>section, #ts-hero-frame, .ts-benefits-section, .ts-why-white-section,
       #ts-tenner-pricing, #founding-access { overflow-x:hidden!important; }
@@ -72,22 +76,21 @@
       page.head.appendChild(style);
     }
   }
-  protect();
-  var styleChecks = 0;
-  var styleTimer = setInterval(function () {
-    protect();
-    if (++styleChecks >= 20) clearInterval(styleTimer);
-  }, 250);
-  setTimeout(function () {
+  var protectedVideos = new WeakSet();
+  function protectVideo() {
     var frame = document.querySelector('iframe[title="Lurgan Town Square"]');
     var page;
     try { page = frame && frame.contentDocument; } catch (error) { return; }
     var video = page && page.querySelector('video[aria-label="Town Square promotional explainer video"]');
-    if (!video) return;
-    video.pause();
+    if (!video || protectedVideos.has(video)) return;
+    protectedVideos.add(video);
     video.setAttribute("src", source);
     video.setAttribute("poster", poster);
     video.setAttribute("preload", "metadata");
     video.load();
-  }, 3500);
+  }
+  protect();
+  setInterval(protect, 500);
+  setTimeout(protectVideo, 5000);
+  setInterval(protectVideo, 3000);
 })();
