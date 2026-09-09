@@ -1,15 +1,9 @@
 (function () {
-  fetch("https://cdn.jsdelivr.net/gh/themarketingguyni-hue/lurgan-town-square-assets@c26692b/lurgan-coming-soon.html")
-    .then(function (response) {
-      if (!response.ok) throw new Error("Unable to load the Lurgan Town Square page");
-      return response.text();
-    })
-    .then(function (html) {
-      document.open();
-      document.write(html);
-      document.close();
-    })
-    .catch(function (error) {
-      console.error(error);
-    });
+  document.documentElement.style.cssText = "margin:0;width:100%;height:100%;overflow:hidden";
+  document.body.style.cssText = "margin:0;width:100%;height:100%;overflow:hidden";
+  var page = document.createElement("iframe");
+  page.title = "Lurgan Town Square live page";
+  page.src = "https://cdn.jsdelivr.net/gh/themarketingguyni-hue/lurgan-town-square-assets@c26692b/lurgan-coming-soon.html";
+  page.style.cssText = "display:block;width:100%;height:100%;border:0;background:#f8f4ea";
+  document.body.replaceChildren(page);
 })();
