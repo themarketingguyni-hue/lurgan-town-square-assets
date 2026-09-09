@@ -9,7 +9,8 @@
       .ts-why-white-section, #ts-tenner-pricing, #founding-access {
         width:100%!important; max-width:100%!important; min-width:0!important;
       }
-      main>section, section[aria-labelledby="business-benefits-title"],
+      html body main>section, html body main>section>section,
+      section[aria-labelledby="business-benefits-title"],
       section[aria-labelledby="why-town-square-title"], #ts-hero-frame,
       .launch-stage, .ts-benefits-section, .ts-why-white-section,
       #ts-tenner-pricing, #founding-access {
@@ -63,20 +64,18 @@
       .launch-stage>*, .launch-stage>*>* { min-width:0!important; max-width:100%!important; }
     }
   `;
-  var lastProtectedPage = null;
   function protect() {
     var frame = document.querySelector('iframe[title="Lurgan Town Square"]');
     var page;
     try { page = frame && frame.contentDocument; } catch (error) { return; }
-    if (!page || !page.head || page === lastProtectedPage) return;
-    lastProtectedPage = page;
+    if (!page || !page.head) return;
     var style = page.getElementById("ts-live-mobile-containment");
     if (!style) {
       style = page.createElement("style");
       style.id = "ts-live-mobile-containment";
       style.textContent = css;
-      page.head.appendChild(style);
     }
+    page.head.appendChild(style);
   }
   var protectedVideos = new WeakSet();
   function protectVideo() {
@@ -86,12 +85,31 @@
     var video = page && page.querySelector('video[aria-label="Town Square promotional explainer video"]');
     if (!video || protectedVideos.has(video)) return;
     protectedVideos.add(video);
-    video.setAttribute("src", source);
+    var mediaPrototype = page.defaultView.HTMLMediaElement.prototype;
+    var descriptor = Object.getOwnPropertyDescriptor(mediaPrototype, "src");
+    if (descriptor && descriptor.get && descriptor.set) {
+      Object.defineProperty(video, "src", {
+        configurable: true,
+        get: function () { return descriptor.get.call(this); },
+        set: function (value) {
+          if (descriptor.get.call(this) !== String(value)) descriptor.set.call(this, value);
+        }
+      });
+    }
+    if (video.getAttribute("src") !== source) video.setAttribute("src", source);
     video.setAttribute("poster", poster);
     video.setAttribute("preload", "none");
   }
   protect();
-  setInterval(protect, 500);
-  setTimeout(protectVideo, 5000);
-  setInterval(protectVideo, 3000);
+  var cascadeChecks = 0;
+  var cascadeTimer = setInterval(function () {
+    protect();
+    if (++cascadeChecks >= 120) clearInterval(cascadeTimer);
+  }, 250);
+  protectVideo();
+  var videoChecks = 0;
+  var videoTimer = setInterval(function () {
+    protectVideo();
+    if (++videoChecks >= 80) clearInterval(videoTimer);
+  }, 250);
 })();
