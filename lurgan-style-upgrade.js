@@ -148,9 +148,7 @@
 
   function upgradeLurganPage() {
     var frame = document.querySelector('iframe[title="Lurgan Town Square"]');
-    if (!frame || !frame.contentDocument) return;
-
-    var page = frame.contentDocument;
+    var page = frame && frame.contentDocument ? frame.contentDocument : document;
     var headerBrand = page.querySelector('.ts-brand, main header a[aria-label*="Town Square"], header a[aria-label*="Town Square"]');
     if (headerBrand) {
       headerBrand.classList.add("ts-brand");
@@ -2684,12 +2682,12 @@
   var readinessChecks = 0;
   var readinessTimer = window.setInterval(function () {
     var frame = document.querySelector('iframe[title="Lurgan Town Square"]');
-    var readyPage = frame && frame.contentDocument;
+    var readyPage = frame && frame.contentDocument ? frame.contentDocument : document;
     readinessChecks += 1;
     if (readyPage && readyPage.querySelector(".ts-hero-stats")) {
       upgradeLurganPage();
       if (readinessChecks >= 6 && readyPage.querySelector(".ts-benefits-section")) {
-        frame.classList.add("ts-upgrade-ready");
+        if (frame) frame.classList.add("ts-upgrade-ready");
         window.clearInterval(readinessTimer);
       }
     }
